@@ -9,6 +9,9 @@ const App = () => {
   const [formattedDate, setFormattedDate] = useState(
     "2023-06-20T14:52:48-01:00"
   );
+  const [formattedFromDate, setFormattedFromDate] = useState(
+    "2023-06-20T14:52:48-01:00"
+  );
 
   const handleDateChange = (e) => {
     const inputDate = e.target.value;
@@ -20,10 +23,20 @@ const App = () => {
     setFormattedDate(formattedDate);
   };
 
+  const handleDateFromChange = (e) => {
+    const inputDate = e.target.value;
+    const parsedDate = parseISO(inputDate);
+    const formattedDate = format(
+      parsedDate,
+      "yyyy-MM-dd'T'HH:mm:sss-xxx".slice(0, 21)
+    );
+    setFormattedFromDate(formattedDate);
+  };
+
   const fetchPollutionData = async () => {
     try {
       const response = await axios.get(
-        `https://api.openaq.org/v2/measurements?location_id=62543&parameter=temperature&parameter=um100&parameter=temperature&parameter=pm10&parameter=um010&parameter=pm1&parameter=pressure&parameter=um025&parameter=pm25&parameter=um005&parameter=um050&parameter=humidity&parameter=um003&date_from=2023-06-19T14:52:48-01:00&date_to=${formattedDate}&limit=30`
+        `https://api.openaq.org/v2/measurements?location_id=62543&parameter=temperature&parameter=um100&parameter=temperature&parameter=pm10&parameter=um010&parameter=pm1&parameter=pressure&parameter=um025&parameter=pm25&parameter=um005&parameter=um050&parameter=humidity&parameter=um003&date_from=${formattedDate}&date_to=${formattedFromDate}&limit=30`
       );
       setChartData(response?.data?.results);
     } catch (error) {
@@ -33,7 +46,7 @@ const App = () => {
 
   useEffect(() => {
     fetchPollutionData();
-  }, [formattedDate]);
+  }, [formattedDate,formattedFromDate]);
 
   useEffect(() => {
     fetchPollutionData();
@@ -69,10 +82,17 @@ const App = () => {
     <div className="container">
       <h2>Pollution Data Chart</h2>
       <div>
+        From:
         <input
           type="date"
           onChange={handleDateChange}
           value={formattedDate.substring(0, 10)}
+        />
+TO:
+<input
+          type="date"
+          onChange={handleDateFromChange}
+          value={formattedFromDate.substring(0, 10)}
         />
 
         <select
